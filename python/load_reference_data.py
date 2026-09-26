@@ -15,11 +15,7 @@ DB_URL = f"postgresql+psycopg2:///{DB_NAME}"
 PROJECT_ROOT = Path.home() / "Projects"
 DATA_DIR = PROJECT_ROOT / "odisha-exposure-quality" / "data"
 
-GADM_L2 = (
-    DATA_DIR
-    / "gadm41_IND_2.json"
-    / "gadm41_IND_2.json"
-)
+GADM_L2 = DATA_DIR / "gadm41_IND_2.json"
 
 GADM_L0 = (
     DATA_DIR
@@ -29,6 +25,11 @@ GADM_L0 = (
 POSTCODE_FILE = (
     DATA_DIR
     / "postcode_district_reference.csv"
+)
+
+GROUND_TRUTH_FILE = (
+    DATA_DIR
+    / "ground_truth.csv"
 )
 
 PROJECT1_GRID = (
@@ -160,6 +161,21 @@ print(
 
 
 # ============================================================
+# LOAD GROUND-TRUTH ERROR REFERENCE
+# ============================================================
+
+print("Loading ground-truth error reference...")
+
+ground_truth = pd.read_csv(
+    GROUND_TRUTH_FILE
+)
+
+print(
+    f"Loaded {len(ground_truth)} ground-truth events."
+)
+
+
+# ============================================================
 # WRITE REFERENCE TABLES
 # ============================================================
 
@@ -181,6 +197,13 @@ india.to_postgis(
 
 postcode.to_sql(
     "postcode_district_reference",
+    engine,
+    if_exists="replace",
+    index=False
+)
+
+ground_truth.to_sql(
+    "ground_truth",
     engine,
     if_exists="replace",
     index=False
@@ -236,11 +259,19 @@ with engine.connect() as conn:
         """)
     ).scalar()
 
+    ground_truth_count = conn.execute(
+        text("""
+            SELECT COUNT(*)
+            FROM ground_truth;
+        """)
+    ).scalar()
+
 
 print()
 print("Reference-data QA:")
 print(f"District boundaries : {district_count}")
 print(f"India boundary      : {india_count}")
 print(f"Postcode references : {postcode_count}")
+print(f"Ground-truth events : {ground_truth_count}")
 print()
 print("Reference data loaded successfully.")

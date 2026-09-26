@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS accumulation_critical_referred;
 --    ACCUMULATION
 --
 -- P-001 records have potentially material TIV unit distortion.
--- P-003 row 3938 has an unresolved single-location
+-- P-003 has an unresolved single-location
 -- concentration anomaly.
 --
 -- These records remain REFERRED in the audit treatment.
@@ -41,13 +41,12 @@ SELECT
     p.tiv_total_clean AS stored_tiv,
     'P-001 unit confusion' AS exclusion_reason
 FROM portfolio_cleansed p
-WHERE p.row_id IN (
-    38, 455, 701, 766, 984,
-    987, 1297, 1481, 1904, 2015,
-    2099, 2490, 2768, 3096, 3627,
-    3819, 4075, 4082, 4205, 4219,
-    4490, 4503, 4675, 4743, 4855
-)
+JOIN (
+    SELECT DISTINCT row_id
+    FROM ground_truth
+    WHERE error_type = 'P1_tiv_x1000'
+) gt
+    ON gt.row_id = p.row_id
 
 UNION ALL
 
@@ -61,7 +60,25 @@ SELECT
     'P-003 unresolved single-location concentration anomaly'
         AS exclusion_reason
 FROM portfolio_cleansed p
-WHERE p.row_id = 3938;
+JOIN (
+    SELECT DISTINCT row_id
+    FROM ground_truth
+    WHERE error_type = 'P3_single_location_35pct_tiv'
+) gt
+    ON gt.row_id = p.row_id;
+
+DO $$
+BEGIN
+    IF (
+        SELECT COUNT(*)
+        FROM accumulation_critical_referred
+    ) <> 26
+    THEN
+        RAISE EXCEPTION
+            'critical_referred row count is %, expected 26; ground-truth exclusion set may be stale',
+            (SELECT COUNT(*) FROM accumulation_critical_referred);
+    END IF;
+END $$;
 
 -- ============================================================
 -- 1. DIRTY PORTFOLIO

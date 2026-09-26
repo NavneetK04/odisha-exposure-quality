@@ -26,7 +26,6 @@ GADM_FILE = (
     / "odisha-exposure-quality"
     / "data"
     / "gadm41_IND_2.json"
-    / "gadm41_IND_2.json"
 )
 
 OUTPUT_DIR = (
