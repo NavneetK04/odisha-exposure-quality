@@ -472,14 +472,15 @@ Run:
 psql -d "$ODISHA_DB_NAME" -f sql/05_accumulation.sql
 ```
 
-The main derived tables should contain:
+The current accumulation outputs are stored in:
 
 ```text
-accumulation_summary          2 rows
-accumulation_comparison      18 rows
-accumulation_sensitivity     68 rows
-accumulation_impact_summary   5 rows
+accumulation_dirty
+accumulation_sensitivity
+accumulation_impact_summary
 ```
+
+The production accumulation excludes the **41 unique records** flagged by P-001/P-003 in `quality_flags`. In the seed-42 evaluation, 26 correspond to injected ground-truth events and 15 are detector false positives. The two detected P-003 records overlap with the P-001 set, so the exclusion set contains 41 unique records rather than 43.
 
 The main accumulation results should be:
 
@@ -491,8 +492,8 @@ DIRTY
 
 PRIMARY
 17 cells
-4,421 locations
-₹155,284,374,688.504
+4,409 locations
+₹145,684,374,688.504
 ```
 
 ---
@@ -526,11 +527,13 @@ The current linked AAL scenarios include:
 
 | Scenario | TIV | Linked AAL | AAL / TIV |
 |---|---:|---:|---:|
-| PRIMARY | ₹155.284B | ₹1.930B | 1.243% |
-| P001_SENSITIVITY | ₹941.428B | ₹11.164B | 1.186% |
-| P003_SENSITIVITY | ₹676.118B | ₹6.604B | 0.977% |
-| COMBINED_SENSITIVITY | ₹1.462T | ₹15.839B | 1.083% |
-| DIRTY | ₹1.465T | ₹15.841B | 1.081% |
+| PRIMARY | ₹145.684B | ₹1.811B | 1.242860% |
+| P001_SENSITIVITY | ₹145.684B | ₹1.811B | 1.242860% |
+| P003_SENSITIVITY | ₹145.684B | ₹1.811B | 1.242860% |
+| COMBINED_SENSITIVITY | ₹1.462261T | ₹15.839B | 1.083157% |
+| DIRTY | ₹1.465404T | ₹15.841B | 1.080971% |
+
+The P001 and P003 sensitivity scenarios coincide with PRIMARY in this seed-42 run because the detected P-003 records are already contained within the detected P-001 exclusion set. COMBINED_SENSITIVITY is a separate cumulative sensitivity scenario and is not the sum of independent P001 and P003 effects.
 
 These are **linked/modelled AAL values under proportional cell-level scaling**, not results from a new catastrophe-model rerun.
 
@@ -567,10 +570,14 @@ A successful end-to-end reproduction should satisfy:
 | Referred | 4,171 |
 | None | 388 |
 | Materiality records | 11,035 |
-| Accumulation summary rows | 2 |
-| Accumulation comparison rows | 18 |
-| Sensitivity rows | 68 |
-| Impact summary rows | 5 |
+| Primary accumulation cells | 17 |
+| Primary accumulation locations | 4,409 |
+| Primary accumulation TIV | ₹145.684B |
+| Dirty accumulation cells | 18 |
+| Dirty accumulation locations | 4,552 |
+| Dirty accumulation TIV | ₹1.465404T |
+| Accumulation sensitivity scenarios | 5 |
+| Impact summary scenarios | 5 |
 
 ---
 

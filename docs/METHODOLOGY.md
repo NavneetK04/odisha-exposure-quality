@@ -223,7 +223,7 @@ A detector finding does not automatically mean:
 
 Instead, each finding receives a treatment decision.
 
-The treatment framework uses four principal actions:
+The treatment framework uses five record-level outcomes:
 
 ## Fixed
 
@@ -344,9 +344,11 @@ The purpose of the accumulation stage is to determine whether exposure-quality i
 
 The primary accumulation does not simply use every record that survived a cleaning step.
 
-Instead, records with unresolved material anomalies capable of materially distorting accumulation are excluded from the primary scenario.
+Instead, the production accumulation excludes the unique records flagged by the accumulation-critical **P-001/P-003 quality rules**. These exclusions are driven by the production `quality_flags` table rather than by ground truth.
 
-These records remain available through sensitivity scenarios.
+This keeps detector evaluation and production accumulation logically separate: ground truth is used to evaluate detection performance, while the production detector output determines accumulation eligibility.
+
+The excluded records remain available through the sensitivity scenarios.
 
 This distinction is critical:
 
@@ -384,15 +386,19 @@ The current validated accumulation results are:
 | Portfolio | Grid cells | Locations | TIV |
 |---|---:|---:|---:|
 | DIRTY | **18** | **4,552** | **₹1,465,404,071,770.565** |
-| CLEANSED / PRIMARY | **17** | **4,421** | **₹155,284,374,688.504** |
+| CLEANSED / PRIMARY | **17** | **4,409** | **₹145,684,374,688.504** |
 
 The dirty-to-primary TIV ratio is approximately:
 
-> **9.44×**
+> **10.06×**
+
+The primary accumulation excludes **41 unique records** flagged by the accumulation-critical P-001/P-003 rules. In the seed-42 evaluation, **26** of these correspond to injected ground-truth events and **15** are detector false positives. The cleansed TIV associated with those 15 false-positive exclusions is **₹12.0B**.
+
+The two detected P-003 records overlap with the P-001 detection set, so the production exclusion set contains **41 unique records rather than 43**.
 
 This is a scenario comparison under the project's treatment and accumulation-eligibility framework.
 
-It should **not** be interpreted as saying that cleaning has reduced the true underlying portfolio by 9.44×.
+It should **not** be interpreted as saying that cleaning has reduced the true underlying portfolio by 10.06×.
 
 ---
 
@@ -417,10 +423,10 @@ It should **not** be interpreted as saying that cleaning has reduced the true un
 
 | Metric | Value |
 |---|---:|
-| Top-1 concentration | 38.371% |
-| Top-3 concentration | 70.644% |
-| Top-5 concentration | 86.645% |
-| HHI | 0.219997 |
+| Top-1 concentration | 39.252% |
+| Top-3 concentration | 71.455% |
+| Top-5 concentration | 86.314% |
+| HHI | 0.224192 |
 | Occupied cells | 17 |
 
 These results describe the synthetic portfolio generated for the project. They should not be interpreted as estimates of actual insured exposure concentration for Odisha.
@@ -429,15 +435,19 @@ These results describe the synthetic portfolio generated for the project. They s
 
 # Sensitivity analysis
 
-The primary accumulation excludes unresolved material referred records.
+The primary accumulation excludes the unique records flagged by the accumulation-critical P-001/P-003 detection rules.
 
-To understand the effect of those exclusions, separate sensitivity scenarios are retained.
+Separate sensitivity scenarios are retained to examine the resulting accumulation under the production detection framework.
+
+In the seed-42 run, the P001 and P003 exclusion sets overlap completely at the unique-record level. Therefore, the P001 and P003 sensitivity scenarios produce the same accumulation result as PRIMARY.
+
+The COMBINED_SENSITIVITY scenario is a separate cumulative scenario that retains the relevant unresolved exposure and is therefore not an additive combination of independent P001 and P003 increments.
 
 | Scenario | TIV | Top-1 | Top-3 | Top-5 | HHI | Cells |
 |---|---:|---:|---:|---:|---:|---:|
-| **PRIMARY** | ₹155.284B | 38.371% | 70.644% | 86.645% | 0.2200 | 17 |
-| **P001_SENSITIVITY** | ₹941.428B | 34.570% | 71.889% | 85.947% | 0.2199 | 17 |
-| **P003_SENSITIVITY** | ₹676.118B | 80.265% | 93.258% | 96.933% | 0.6548 | 17 |
+| **PRIMARY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
+| **P001_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
+| **P003_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
 | **COMBINED_SENSITIVITY** | ₹1,462.261B | 53.227% | 81.902% | 90.953% | 0.3435 | 17 |
 | **DIRTY** | ₹1,465.404B | 53.115% | 81.722% | 90.757% | 0.3420 | 18 |
 
@@ -472,7 +482,9 @@ python/calibrate_references.py
 
 P-003 represents a single-location concentration anomaly.
 
-The current ground-truth P-003 event is **row 3938**. Its stored TIV is approximately **₹520.833B**, and it maps to the Project 1 accumulation grid cell at approximately **85.75°E, 20.50°N**. In the P003 sensitivity scenario, this single unresolved record adds approximately **₹520.833B** of TIV above the primary accumulation.
+P-003 ground truth remains available for detector evaluation, but it is not used to determine production accumulation eligibility. The primary accumulation is driven by the production `quality_flags` output for P-001/P-003.
+
+In the seed-42 evaluation, the production detection set contains **41 unique records** flagged by P-001/P-003. Ground truth contains **26** corresponding injected records, leaving **15 detector false positives**. The cleansed TIV associated with those false-positive exclusions is **₹12.0B**. The two detected P-003 records overlap with the P-001 detection set, so the production exclusion set contains 41 unique records rather than 43.
 
 The purpose of the rule is to identify an exposure whose value creates an unusually large concentration at one location.
 
@@ -589,8 +601,9 @@ The first materiality and accumulation implementation allowed unresolved P-001 T
 The workflow was subsequently changed so that:
 
 - validated clean-baseline references are kept separately
-- unresolved material records are excluded from the primary accumulation
-- P-001 remains available through a sensitivity scenario
+- unresolved P-001/P-003 records detected by the production quality-control pipeline are excluded from the primary accumulation
+- production detector output, rather than ground truth, determines accumulation eligibility
+- sensitivity scenarios are retained to document the effect of the detected exclusion framework
 - the dirty scenario remains available for comparison
 
 ---
@@ -748,51 +761,79 @@ This is appropriate only under the assumptions of the Project 1 framework and sh
 
 ### AAL arithmetic reconciliation
 
-The sensitivity AAL rows are **scenario totals**, not incremental AAL deltas.
+The sensitivity AAL rows are **scenario totals**, not independent incremental AAL contributions.
 
-Therefore:
-
-- **P001_SENSITIVITY** = PRIMARY + the incremental P-001 exposure
-- **P003_SENSITIVITY** = PRIMARY + the incremental P-003 exposure
-- **COMBINED_SENSITIVITY** = PRIMARY + incremental P-001 + incremental P-003
+Under the corrected production-driven accumulation logic, the P-001 and P-003 exclusion sets overlap completely at the unique-record level. Therefore, the P001 and P003 sensitivity scenarios produce the same accumulation and AAL as the PRIMARY scenario.
 
 Using the current values:
 
-| Component | TIV | Linked AAL |
+| Scenario | TIV | Linked AAL |
 |---|---:|---:|
-| PRIMARY | ₹155.284B | ₹1.930B |
-| Incremental P-001 | ₹786.144B | ₹9.234B |
-| Incremental P-003 | ₹520.833B | ₹4.675B |
-| **COMBINED_SENSITIVITY** | **₹1,462.261B** | **₹15.839B** |
+| PRIMARY | ₹145.684B | ₹1.811B |
+| P001_SENSITIVITY | ₹145.684B | ₹1.811B |
+| P003_SENSITIVITY | ₹145.684B | ₹1.811B |
+| COMBINED_SENSITIVITY | ₹1,462.261B | ₹15.839B |
 
-The reconciliation is therefore:
+The P001 and P003 scenarios are therefore **not additive incremental components** of the combined scenario. Their equality with PRIMARY reflects the overlap of the production-detected P-001/P-003 exclusion sets.
+
+The combined scenario is a separate cumulative sensitivity scenario that retains the relevant unresolved exposure rather than excluding it from the primary accumulation. Consequently, it should **not** be reconciled as:
 
 \[
-1.930 + 9.234 + 4.675 \approx 15.839\text{ B}
+PRIMARY + \text{incremental P-001} + \text{incremental P-003}
+\]
+
+The combined scenario has:
+
+\[
+TIV = ₹1,462.261B
 \]
 
 and:
 
 \[
-155.284 + 786.144 + 520.833 \approx 1,462.261\text{ B}
+AAL = ₹15.839B
 \]
 
-The resulting combined AAL/TIV ratio is approximately **1.083%**. It is not required to lie between the standalone PRIMARY, P001_SENSITIVITY and P003_SENSITIVITY ratios because those sensitivity rows are cumulative scenario totals and the combined scenario is constructed from **incremental deltas** relative to PRIMARY.
+giving an AAL/TIV ratio of approximately:
 
-A production model with construction-specific vulnerability, occupancy-specific vulnerability, policy terms, deductibles, limits, or other non-linear exposure characteristics would require a full model rerun.
+\[
+\mathbf{1.083\%}
+\]
+
+The primary scenario has:
+
+\[
+TIV = ₹145.684B
+\]
+
+and:
+
+\[
+AAL = ₹1.811B
+\]
+
+giving an AAL/TIV ratio of approximately:
+
+\[
+\mathbf{1.243\%}
+\]
+
+These ratios are scenario-specific and need not be interpreted as additive quantities.
+
+A production model with construction-specific vulnerability, occupancy-specific vulnerability, policy terms, deductibles, limits, or other non-linear exposure characteristics would require a full catastrophe-model rerun.
 
 ---
 
 ## Primary accumulation is a scenario
 
-The primary accumulation excludes unresolved material referred records.
+The primary accumulation excludes the unique records flagged by the accumulation-critical P-001/P-003 detection rules.
 
 It should therefore not be interpreted as a fully reconciled "true" portfolio.
 
-Instead, it represents the exposure that can currently be supported for primary accumulation under the project's treatment and materiality rules.
+Instead, it represents the exposure that can currently be supported for primary accumulation under the project's production detection and treatment framework.
 
-Excluded material records remain available through sensitivity scenarios.
+Ground truth is used for detector evaluation only; production `quality_flags` determine accumulation eligibility.
+
+Excluded records remain available through sensitivity scenarios.
 
 ---
-
-# Repository structure

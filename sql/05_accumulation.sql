@@ -31,7 +31,6 @@ DROP TABLE IF EXISTS accumulation_critical_referred;
 -- ============================================================
 
 CREATE TABLE accumulation_critical_referred AS
-
 SELECT
     p.row_id,
     p.location_id,
@@ -39,43 +38,31 @@ SELECT
     p.latitude_clean,
     p.longitude_clean,
     p.tiv_total_clean AS stored_tiv,
-    'P-001 unit confusion' AS exclusion_reason
+    CASE
+        WHEN q.has_p001 THEN 'P-001 unit confusion detected'
+        WHEN q.has_p003 THEN 'P-003 single-location concentration anomaly detected'
+    END AS exclusion_reason
 FROM portfolio_cleansed p
 JOIN (
-    SELECT DISTINCT row_id
-    FROM ground_truth
-    WHERE error_type = 'P1_tiv_x1000'
-) gt
-    ON gt.row_id = p.row_id
-
-UNION ALL
-
-SELECT
-    p.row_id,
-    p.location_id,
-    p.district,
-    p.latitude_clean,
-    p.longitude_clean,
-    p.tiv_total_clean AS stored_tiv,
-    'P-003 unresolved single-location concentration anomaly'
-        AS exclusion_reason
-FROM portfolio_cleansed p
-JOIN (
-    SELECT DISTINCT row_id
-    FROM ground_truth
-    WHERE error_type = 'P3_single_location_35pct_tiv'
-) gt
-    ON gt.row_id = p.row_id;
+    SELECT
+        row_id,
+        BOOL_OR(rule_id = 'P-001') AS has_p001,
+        BOOL_OR(rule_id = 'P-003') AS has_p003
+    FROM quality_flags
+    WHERE rule_id IN ('P-001', 'P-003')
+    GROUP BY row_id
+) q
+    ON q.row_id = p.row_id;
 
 DO $$
 BEGIN
     IF (
         SELECT COUNT(*)
         FROM accumulation_critical_referred
-    ) <> 26
+    ) <> 41
     THEN
         RAISE EXCEPTION
-            'critical_referred row count is %, expected 26; ground-truth exclusion set may be stale',
+            'critical_referred row count is %, expected 41; production detection exclusion set may have changed',
             (SELECT COUNT(*) FROM accumulation_critical_referred);
     END IF;
 END $$;

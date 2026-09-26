@@ -20,8 +20,8 @@ In the validated current implementation:
 - Excluding deterministic completeness rules, injected-error performance is **75.28% precision** and **99.41% recall**.
 - Treatment produces **5,020 cleansed records** with 190 fixed, 176 quarantined, 95 assumed, 4,171 referred and 388 requiring no treatment.
 - The dirty accumulation contains **₹1.465T** of TIV across 18 occupied grid cells.
-- The primary accumulation-eligible portfolio contains **₹155.284B** across 17 occupied grid cells.
-- The dirty-to-primary TIV ratio is approximately **9.44×**.
+- The primary accumulation-eligible portfolio contains **₹145.684B** across 17 occupied grid cells.
+- The dirty-to-primary TIV ratio is approximately **10.06×**.
 
 The dirty-to-primary difference is a **scenario comparison under the project's treatment and accumulation-eligibility framework**. It should not be interpreted as a claim that data cleaning has proven that the underlying real portfolio was overstated by that amount.
 
@@ -39,7 +39,7 @@ The dirty-to-primary difference is a **scenario comparison under the project's t
 | Records with ≥1 detected finding | **4,632** | Current detector output |
 | Clean total TIV | **₹168.867B** | 5,000-record clean portfolio |
 | Dirty accumulation TIV | **₹1.465T** | Contaminated scenario |
-| Primary accumulation TIV | **₹155.284B** | Accumulation-eligible scenario |
+| Primary accumulation TIV | **₹145.684B** | Accumulation-eligible scenario |
 | Dirty occupied cells | **18** | Project 1 0.25° grid |
 | Primary occupied cells | **17** | Project 1 0.25° grid |
 | Overall TP | **9,982** | All ground-truth dimensions |
@@ -332,13 +332,15 @@ data/odisha_exposure_grid.gpkg
 | Portfolio | Grid cells | Locations | TIV |
 |---|---:|---:|---:|
 | DIRTY | **18** | **4,552** | **₹1,465,404,071,770.565** |
-| CLEANSED / PRIMARY | **17** | **4,421** | **₹155,284,374,688.504** |
+| CLEANSED / PRIMARY | **17** | **4,409** | **₹145,684,374,688.504** |
 
 Dirty-to-primary TIV ratio:
 
-> **9.44×**
+> **10.06×**
 
-This is a scenario comparison under the project's treatment and accumulation-eligibility framework, not a claim that cleaning has reduced the true underlying portfolio by 9.44×.
+This is a scenario comparison under the project's treatment and accumulation-eligibility framework, not a claim that cleaning has reduced the true underlying portfolio by 10.06×.
+
+The primary accumulation excludes **41 unique records** flagged by the accumulation-critical P-001/P-003 rules. In the seed-42 evaluation, **26** of these correspond to injected ground-truth events and **15** are detector false positives. The cleansed TIV associated with those 15 false-positive exclusions is **₹12.0B**. This quantifies the exposure cost of conservative quality-control exclusions in this synthetic evaluation.
 
 ## Concentration metrics
 
@@ -348,23 +350,27 @@ This is a scenario comparison under the project's treatment and accumulation-eli
 
 | Metric | DIRTY | PRIMARY |
 |---|---:|---:|
-| Top-1 concentration | 53.115% | 38.371% |
-| Top-3 concentration | 81.722% | 70.644% |
-| Top-5 concentration | 90.757% | 86.645% |
-| HHI | 0.341956 | 0.219997 |
+| Top-1 concentration | 53.115% | 39.252% |
+| Top-3 concentration | 81.722% | 71.455% |
+| Top-5 concentration | 90.757% | 86.314% |
+| HHI | 0.341956 | 0.224192 |
 | Occupied cells | 18 | 17 |
 
 These results describe the synthetic portfolio generated for the project and should not be interpreted as estimates of actual insured exposure concentration for Odisha.
 
 ## Sensitivity analysis
 
+The primary accumulation excludes records flagged by the accumulation-critical P-001/P-003 detection rules. Separate sensitivity outputs are retained to show the effect of the same detected exclusion set under the rule-specific scenario labels.
+
 | Scenario | TIV | Top-1 | Top-3 | Top-5 | HHI | Cells |
 |---|---:|---:|---:|---:|---:|---:|
-| **PRIMARY** | ₹155.284B | 38.371% | 70.644% | 86.645% | 0.2200 | 17 |
-| **P001_SENSITIVITY** | ₹941.428B | 34.570% | 71.889% | 85.947% | 0.2199 | 17 |
-| **P003_SENSITIVITY** | ₹676.118B | 80.265% | 93.258% | 96.933% | 0.6548 | 17 |
+| **PRIMARY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
+| **P001_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
+| **P003_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
 | **COMBINED_SENSITIVITY** | ₹1,462.261B | 53.227% | 81.902% | 90.953% | 0.3435 | 17 |
 | **DIRTY** | ₹1,465.404B | 53.115% | 81.722% | 90.757% | 0.3420 | 18 |
+
+In this seed-42 run, the P001 and P003 sensitivity scenarios coincide with PRIMARY because the detected P-003 records are already contained within the detected P-001 exclusion set. The two P-003 records overlap with the P-001 set, so there are **41 unique production-detected exclusions**, not 43.
 
 The sensitivity scenarios demonstrate that unresolved exposure-quality issues can change both total portfolio exposure and the **shape of spatial concentration**.
 
@@ -374,9 +380,7 @@ The sensitivity scenarios demonstrate that unresolved exposure-quality issues ca
 
 The detector uses a frozen clean-baseline threshold rather than recalculating the threshold from dirty data.
 
-**P-003** represents a single-location concentration anomaly. In the current **seed-42 run**, the ground-truth P-003 event is row 3938, with stored TIV of approximately **₹520.833B**. It maps to approximately **85.75°E, 20.50°N** and contributes approximately **₹520.833B** above the primary accumulation in the P003 sensitivity scenario.
-
-The dynamic accumulation exclusion itself is driven by the ground-truth error type rather than by this row ID.
+**P-003** represents a single-location concentration anomaly. Ground truth remains available for detector evaluation, but it is **not used to determine production accumulation eligibility**. Production accumulation eligibility is driven by the P-001/P-003 flags generated by the quality-control pipeline.
 
 # Linkage to catastrophe-risk modelling
 
@@ -413,11 +417,11 @@ A full catastrophe-model rerun would be required if exposure-quality changes aff
 |---|---:|---:|---:|
 | COMBINED | ₹1,462.261B | ₹15.839B | 1.083157% |
 | DIRTY | ₹1,465.404B | ₹15.841B | 1.080971% |
-| P001 | ₹941.428B | ₹11.164B | 1.185849% |
-| P003 | ₹676.118B | ₹6.604B | 0.976825% |
-| PRIMARY | ₹155.284B | ₹1.930B | 1.242764% |
+| P001 | ₹145.684B | ₹1.811B | 1.242860% |
+| P003 | ₹145.684B | ₹1.811B | 1.242860% |
+| PRIMARY | ₹145.684B | ₹1.811B | 1.242860% |
 
-The P001 and P003 rows are cumulative scenario totals. Their incremental AAL contributions reconcile to the combined scenario.
+The P001 and P003 rows coincide with PRIMARY in this run because their detected exclusion sets produce the same accumulation result. The combined scenario remains a separate cumulative sensitivity scenario and should not be interpreted as the sum of independent P001 and P003 AAL increments.
 
 ---
 
@@ -429,7 +433,7 @@ Several issues were deliberately caught and corrected during development:
 - Clean-baseline TIV/m² calibration was introduced before error injection.
 - Ground-truth field collisions were controlled so injected transformations do not silently overwrite another event's provenance.
 - Materiality was changed to use an authoritative clean-portfolio TIV reference.
-- Accumulation exclusions were changed from hardcoded row IDs to ground-truth-driven selection.
+- Accumulation exclusions were changed from hardcoded row IDs and ground-truth-driven selection to production `quality_flags`-driven selection.
 - The accumulation workflow explicitly separates treatment status from accumulation eligibility.
 - A fresh reproduction database was used to validate the workflow rather than relying only on an existing database state.
 
