@@ -528,12 +528,12 @@ The current linked AAL scenarios include:
 | Scenario | TIV | Linked AAL | AAL / TIV |
 |---|---:|---:|---:|
 | PRIMARY | ₹145.684B | ₹1.811B | 1.242860% |
-| P001_SENSITIVITY | ₹145.684B | ₹1.811B | 1.242860% |
-| P003_SENSITIVITY | ₹145.684B | ₹1.811B | 1.242860% |
+| P003_SENSITIVITY | ₹829.722B | ₹7.950B | 0.958168% |
+| P001_SENSITIVITY | ₹1.462261T | ₹15.839B | 1.083157% |
 | COMBINED_SENSITIVITY | ₹1.462261T | ₹15.839B | 1.083157% |
 | DIRTY | ₹1.465404T | ₹15.841B | 1.080971% |
 
-The P001 and P003 sensitivity scenarios coincide with PRIMARY in this seed-42 run because the detected P-003 records are already contained within the detected P-001 exclusion set. COMBINED_SENSITIVITY is a separate cumulative sensitivity scenario and is not the sum of independent P001 and P003 effects.
+In this seed-42 run, both detected P-003 records are contained within the detected P-001 exclusion set. Consequently, P001_SENSITIVITY and COMBINED_SENSITIVITY coincide, while P003_SENSITIVITY produces a distinct result from PRIMARY. COMBINED_SENSITIVITY is a separate cumulative sensitivity scenario and is not the sum of independent P001 and P003 effects.
 
 These are **linked/modelled AAL values under proportional cell-level scaling**, not results from a new catastrophe-model rerun.
 

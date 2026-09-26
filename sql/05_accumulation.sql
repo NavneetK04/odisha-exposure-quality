@@ -38,9 +38,14 @@ SELECT
     p.latitude_clean,
     p.longitude_clean,
     p.tiv_total_clean AS stored_tiv,
+    q.has_p001,
+    q.has_p003,
     CASE
-        WHEN q.has_p001 THEN 'P-001 unit confusion detected'
-        WHEN q.has_p003 THEN 'P-003 single-location concentration anomaly detected'
+        WHEN q.has_p001 AND q.has_p003
+            THEN 'P-001 and P-003 detected'
+        WHEN q.has_p001
+            THEN 'P-001 unit confusion detected'
+        ELSE 'P-003 single-location concentration anomaly detected'
     END AS exclusion_reason
 FROM portfolio_cleansed p
 JOIN (
@@ -561,7 +566,7 @@ WITH scenario_portfolio AS (
               SELECT 1
               FROM accumulation_critical_referred x
               WHERE x.row_id = p.row_id
-                AND x.exclusion_reason = 'P-001 unit confusion'
+                AND x.has_p001
           )
       )
 
@@ -589,8 +594,7 @@ WITH scenario_portfolio AS (
               SELECT 1
               FROM accumulation_critical_referred x
               WHERE x.row_id = p.row_id
-                AND x.exclusion_reason =
-                    'P-003 unresolved single-location concentration anomaly'
+                AND x.has_p003
           )
       )
 
@@ -828,6 +832,44 @@ WHERE quarantined = FALSE
       WHERE x.row_id = portfolio_cleansed.row_id
   )
 GROUP BY construction_clean;
+
+-- ============================================================
+-- 9A. ACCUMULATION SENSITIVITY REGRESSION GUARD
+-- ============================================================
+
+DO $$
+BEGIN
+    IF (
+        SELECT COUNT(DISTINCT scenario)
+        FROM accumulation_sensitivity
+        WHERE scenario IN (
+            'PRIMARY',
+            'P001_SENSITIVITY',
+            'P003_SENSITIVITY',
+            'COMBINED_SENSITIVITY'
+        )
+    ) <> 4
+    THEN
+        RAISE EXCEPTION
+            'One or more accumulation sensitivity scenarios are missing';
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM accumulation_sensitivity
+        WHERE scenario = 'P003_SENSITIVITY'
+          AND total_tiv <> (
+              SELECT total_tiv
+              FROM accumulation_sensitivity
+              WHERE scenario = 'PRIMARY'
+              LIMIT 1
+          )
+    )
+    THEN
+        RAISE EXCEPTION
+            'P003 sensitivity collapsed to PRIMARY; check scenario inclusion predicate';
+    END IF;
+END $$;
 
 
 -- ============================================================

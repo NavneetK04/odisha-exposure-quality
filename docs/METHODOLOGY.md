@@ -439,15 +439,15 @@ The primary accumulation excludes the unique records flagged by the accumulation
 
 Separate sensitivity scenarios are retained to examine the resulting accumulation under the production detection framework.
 
-In the seed-42 run, the P001 and P003 exclusion sets overlap completely at the unique-record level. Therefore, the P001 and P003 sensitivity scenarios produce the same accumulation result as PRIMARY.
+In the seed-42 run, both detected P-003 records are contained within the P-001 exclusion set. Consequently, P001_SENSITIVITY and COMBINED_SENSITIVITY produce the same accumulation result, while P003_SENSITIVITY produces a distinct result from PRIMARY.
 
 The COMBINED_SENSITIVITY scenario is a separate cumulative scenario that retains the relevant unresolved exposure and is therefore not an additive combination of independent P001 and P003 increments.
 
 | Scenario | TIV | Top-1 | Top-3 | Top-5 | HHI | Cells |
 |---|---:|---:|---:|---:|---:|---:|
 | **PRIMARY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
-| **P001_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
-| **P003_SENSITIVITY** | ₹145.684B | 39.252% | 71.455% | 86.314% | 0.2242 | 17 |
+| **P003_SENSITIVITY** | ₹829.722B | 84.979% | 94.988% | 97.597% | 0.7284 | 17 |
+| **P001_SENSITIVITY** | ₹1,462.261B | 53.227% | 81.902% | 90.953% | 0.3435 | 17 |
 | **COMBINED_SENSITIVITY** | ₹1,462.261B | 53.227% | 81.902% | 90.953% | 0.3435 | 17 |
 | **DIRTY** | ₹1,465.404B | 53.115% | 81.722% | 90.757% | 0.3420 | 18 |
 
@@ -763,18 +763,18 @@ This is appropriate only under the assumptions of the Project 1 framework and sh
 
 The sensitivity AAL rows are **scenario totals**, not independent incremental AAL contributions.
 
-Under the corrected production-driven accumulation logic, the P-001 and P-003 exclusion sets overlap completely at the unique-record level. Therefore, the P001 and P003 sensitivity scenarios produce the same accumulation and AAL as the PRIMARY scenario.
+Under the corrected production-driven accumulation logic, both detected P-003 records are contained within the P-001 exclusion set. Therefore, P001_SENSITIVITY and COMBINED_SENSITIVITY coincide in this seed-42 run, while P003_SENSITIVITY produces a distinct accumulation and AAL result from PRIMARY.
 
 Using the current values:
 
 | Scenario | TIV | Linked AAL |
 |---|---:|---:|
 | PRIMARY | ₹145.684B | ₹1.811B |
-| P001_SENSITIVITY | ₹145.684B | ₹1.811B |
-| P003_SENSITIVITY | ₹145.684B | ₹1.811B |
+| P003_SENSITIVITY | ₹829.722B | ₹7.950B |
+| P001_SENSITIVITY | ₹1,462.261B | ₹15.839B |
 | COMBINED_SENSITIVITY | ₹1,462.261B | ₹15.839B |
 
-The P001 and P003 scenarios are therefore **not additive incremental components** of the combined scenario. Their equality with PRIMARY reflects the overlap of the production-detected P-001/P-003 exclusion sets.
+The P001 and P003 scenarios are **not additive incremental components** of the combined scenario. In this seed-42 run, P001_SENSITIVITY and COMBINED_SENSITIVITY coincide because both detected P-003 records are contained within the P-001 exclusion set, while P003_SENSITIVITY produces a distinct scenario total.
 
 The combined scenario is a separate cumulative sensitivity scenario that retains the relevant unresolved exposure rather than excluding it from the primary accumulation. Consequently, it should **not** be reconciled as:
 
