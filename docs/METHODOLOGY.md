@@ -122,7 +122,7 @@ All completeness ground-truth pairs are detected:
 
 ## Detection performance by dimension
 
-![Detection performance by dimension](outputs/figures/01_detection_performance_by_dimension.png)
+![Detection performance by dimension](../outputs/figures/01_detection_performance_by_dimension.png)
 
 
 | Dimension | TP | FP | FN | Precision | Recall |
@@ -251,7 +251,7 @@ No treatment was required.
 
 # Treatment summary
 
-![Treatment summary](outputs/figures/06_treatment_summary.png)
+![Treatment summary](../outputs/figures/06_treatment_summary.png)
 
 
 The current treatment run produces exactly 5,020 cleansed records:
@@ -299,7 +299,7 @@ Finding-level classification is maintained separately from record-level treatmen
 
 # 5. Materiality
 
-![Materiality funnel](outputs/figures/02_materiality_funnel.png)
+![Materiality funnel](../outputs/figures/02_materiality_funnel.png)
 
 
 The current materiality SQL produces:
@@ -376,7 +376,7 @@ This makes Project 2 self-contained with respect to the spatial reference requir
 
 # Dirty versus primary accumulation
 
-![Dirty versus primary accumulation](outputs/figures/03_dirty_vs_primary_accumulation.png)
+![Dirty versus primary accumulation](../outputs/figures/03_dirty_vs_primary_accumulation.png)
 
 
 The current validated accumulation results are:
@@ -398,9 +398,9 @@ It should **not** be interpreted as saying that cleaning has reduced the true un
 
 # Concentration metrics
 
-![Concentration HHI](outputs/figures/04_concentration_hhi.png)
+![Concentration HHI](../outputs/figures/04_concentration_hhi.png)
 
-![Top-1 concentration](outputs/figures/04b_top1_concentration.png)
+![Top-1 concentration](../outputs/figures/04b_top1_concentration.png)
 
 
 ## DIRTY
@@ -490,7 +490,7 @@ and still require escalation because of its impact on portfolio concentration.
 
 # 7. Linkage to catastrophe-risk modelling
 
-![AAL scenario analysis](outputs/figures/05_aal_scenario_table.png)
+![AAL scenario analysis](../outputs/figures/05_aal_scenario_table.png)
 
 
 Project 1 established a cyclone catastrophe-risk modelling framework for coastal Odisha using:
