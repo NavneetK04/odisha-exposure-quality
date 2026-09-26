@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+.exposure_env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Old database dump
+odisha_exposure_before_fresh_run.sql
+
+# Windows metadata
+*:Zone.Identifier
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

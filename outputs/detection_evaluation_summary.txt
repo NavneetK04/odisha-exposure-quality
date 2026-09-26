@@ -1,0 +1,26 @@
+Detection evaluation summary
+============================
+
+Database: odisha_exposure_repro
+Ground-truth pairs: 10001
+Detected pairs: 11035
+
+Overall detection
+TP: 9982
+FP: 1053
+FN: 19
+Precision: 90.457635%
+Recall: 99.810019%
+
+Injected-error evaluation (completeness excluded)
+TP: 3207
+FP: 1053
+FN: 19
+Precision: 75.281690%
+Recall: 99.411035%
+
+Completeness
+TP: 6775
+FP: 0
+FN: 0
+Coverage: 100.000000%

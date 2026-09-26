@@ -1,0 +1,13 @@
+pandas==3.0.6
+numpy==2.4.6
+geopandas==1.1.4
+shapely==2.1.2
+pyproj==3.7.2
+pyogrio==0.13.0
+GeoAlchemy2==0.20.0
+SQLAlchemy==2.0.54
+psycopg2-binary==2.9.13
+matplotlib==3.11.2
+openpyxl==3.1.5
+Faker==40.39.0
+python-dotenv==1.2.3
