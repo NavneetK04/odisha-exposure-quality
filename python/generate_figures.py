@@ -132,7 +132,7 @@ fig, ax = plt.subplots(figsize=(10, 6))
 bars = ax.bar(df["scenario"], df["hhi"])
 
 ax.set_ylabel("HHI")
-ax.set_title("Accumulation Concentration — HHI")
+ax.set_title("Accumulation Concentration - HHI")
 ax.tick_params(axis="x", rotation=25)
 ax.grid(axis="y", alpha=0.25)
 
@@ -158,34 +158,42 @@ plt.close(fig)
 # 4b. Top-1 concentration
 # ============================================================
 
+top1_df = pd.read_csv(
+    OUTPUT_DIR / "concentration_comparison.csv"
+)
+
+top1_values = top1_df["top1_share"].astype(float) * 100
+
 fig, ax = plt.subplots(figsize=(10, 6))
 
 bars = ax.bar(
-    df["scenario"],
-    df["top1_pct"]
+    top1_df["scenario"],
+    top1_values
 )
 
 ax.set_ylabel("Top-1 cell share (%)")
-ax.set_title("Accumulation Concentration — Top-1 Cell")
+ax.set_title("Accumulation Concentration - Top-1 Cell")
 ax.set_ylim(0, 100)
 ax.tick_params(axis="x", rotation=25)
 ax.grid(axis="y", alpha=0.25)
 
-for bar, value in zip(bars, df["top1_pct"]):
+for bar, value in zip(bars, top1_values):
     ax.text(
         bar.get_x() + bar.get_width() / 2,
-        bar.get_height(),
+        value,
         f"{value:.2f}%",
         ha="center",
         va="bottom"
     )
 
 fig.tight_layout()
+
 fig.savefig(
     FIG_DIR / "04b_top1_concentration.png",
-    dpi=200,
+    dpi=150,
     bbox_inches="tight"
 )
+
 plt.close(fig)
 
 
