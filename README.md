@@ -399,13 +399,13 @@ Project 2 reuses the same spatial grid.
 
 Where Project 1 outputs are available at the same grid-cell level, the current linkage uses proportional exposure scaling:
 
-\[
+$$
 AAL_{P2,c}
 =
 AAL_{P1,c}
 \times
 \frac{TIV_{P2,c}}{TIV_{P1,c}}
-\]
+$$
 
 This is a **proportional linkage, not a new catastrophe model**.
 
