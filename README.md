@@ -1,4 +1,4 @@
-# Exposure Data Quality & Accumulation Analysis — Coastal Odisha
+# Exposure Data Quality & Accumulation Analysis - Coastal Odisha
 
 An end-to-end exposure data-quality workflow for a synthetic coastal Odisha portfolio, covering portfolio validation, controlled error injection, detection, materiality triage, treatment, accumulation analysis, and linkage to catastrophe-risk outputs.
 
@@ -104,9 +104,9 @@ Documentation and auditability are treated as a cross-cutting requirement.
 
 Each finding is classified as:
 
-- **Error** — evidence indicates that the value is wrong.
-- **Unknown** — available evidence is insufficient to establish whether the value is correct.
-- **Assumption** — a modelling or treatment decision is required because the available data does not uniquely determine the answer.
+- **Error** - evidence indicates that the value is wrong.
+- **Unknown** - available evidence is insufficient to establish whether the value is correct.
+- **Assumption** - a modelling or treatment decision is required because the available data does not uniquely determine the answer.
 
 This distinction prevents uncertainty from being silently converted into false certainty.
 
@@ -245,11 +245,11 @@ A detector finding does not automatically mean:
 
 The treatment framework uses:
 
-- **Fixed** — deterministic correction is possible.
-- **Assumed** — an explicit modelling assumption is required.
-- **Quarantined** — the unresolved issue makes the record unsafe for the primary modelling population.
-- **Referred** — human review or additional source information is required.
-- **None** — no treatment is required.
+- **Fixed** - deterministic correction is possible.
+- **Assumed** - an explicit modelling assumption is required.
+- **Quarantined** - the unresolved issue makes the record unsafe for the primary modelling population.
+- **Referred** - human review or additional source information is required.
+- **None** - no treatment is required.
 
 ## Treatment summary
 
@@ -399,13 +399,10 @@ Project 2 reuses the same spatial grid.
 
 Where Project 1 outputs are available at the same grid-cell level, the current linkage uses proportional exposure scaling:
 
-$$
-AAL_{P2,c}
-=
-AAL_{P1,c}
-\times
-\frac{TIV_{P2,c}}{TIV_{P1,c}}
-$$
+<p align="center">
+<strong>AAL<sub>P2,c</sub> = AAL<sub>P1,c</sub> ×
+(TIV<sub>P2,c</sub> / TIV<sub>P1,c</sub>)</strong>
+</p>
 
 This is a **proportional linkage, not a new catastrophe model**.
 
