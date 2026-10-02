@@ -451,6 +451,8 @@ Important limitations include:
 - Primary accumulation is a supported scenario, not a fully reconciled real portfolio.
 - The AAL linkage uses proportional scaling rather than a full catastrophe-model rerun.
 - Sensitivity scenarios depend on the controlled treatment framework.
+- **Synthetic locations are generated inside a bounding box rather than along the coastline.** The 5,000 records are distributed uniformly within a rectangle over coastal Odisha, so when they are aggregated onto Project 1's 525-cell grid the PRIMARY portfolio occupies 17 cells forming a block, with only its southern row near the shore. This was not visible from within this project. It became visible in [Project 3](https://github.com/NavneetK04/odisha-event-response), which swept real cyclone wind footprints across the portfolio and found that three of four historical Odisha landfalls (Phailin, Titli, Amphan) fall outside damaging range of it. Any spatial result that depends on where the portfolio sits, rather than on how much TIV it holds, inherits the shape of that rectangle.
+- **Plausibility against an external exposure base was not checked.** Project 1's LitPop economic exposure for the same region is $144.86B, which at an illustrative ₹83 per USD is about ₹12.0 trillion of built assets. The clean portfolio is 1.40% of that and the PRIMARY accumulation 1.21%, both plausible for Indian property insurance penetration. The DIRTY accumulation of ₹1,465.404B is **12.2%**, roughly ten times plausible penetration. The P-001 unit-error contamination is therefore detectable by a single division against Project 1's exposure base, with no detector at all. It was found here by SQL rules; the cross-project screen was not available because one figure was in dollars and the comparison was never made.
 
 The detailed limitations and methodological qualifications are documented in [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 
@@ -589,13 +591,15 @@ Potential extensions include:
 - probabilistic treatment of unresolved records
 - portfolio-level uncertainty bounds
 - construction- and occupancy-specific catastrophe vulnerability linkage
-- full catastrophe-model reruns for treated and sensitivity scenarios
 - additional accumulation metrics and spatial diagnostics
 - evaluation against real-world exposure corruption where labelled data is available
+- coast-following location generation, so the portfolio footprint follows the shoreline rather than a bounding box
+- order-of-magnitude plausibility screening of TIV against an independent economic exposure base, as a cheap pre-detector check for unit errors
+- ~~full catastrophe-model reruns for treated and sensitivity scenarios~~ **done in [Project 3](https://github.com/NavneetK04/odisha-event-response)**, which runs CLIMADA hazard to loss on all five scenarios of this portfolio
 
 ---
 
-# Relationship to Project 1
+# Relationship to Projects 1 and 3
 
 Project 1 established the cyclone catastrophe-risk modelling framework and spatial exposure grid used as the downstream reference.
 
@@ -618,6 +622,10 @@ Catastrophe-risk interpretation
 ```
 
 Project 2 therefore extends the Project 1 workflow upstream by interrogating the exposure data before it is treated as an input to catastrophe-risk analysis.
+
+[Project 3, odisha-event-response](https://github.com/NavneetK04/odisha-event-response), uses this project's PRIMARY accumulation portfolio as the exposure for a forecast-uncertainty study of four historical cyclones. It runs a full CLIMADA hazard-to-loss calculation on all five exposure scenarios defined here, across 19 event-lead panels and 9,500 wind fields, which is the catastrophe-model rerun this project's AAL linkage approximates by proportional scaling.
+
+It also found the bounding-box footprint limitation recorded above. Sweeping a real wind field across the portfolio is what made the shape of the synthetic location generator visible; no amount of row-level or accumulation-level validation inside this project would have surfaced it.
 
 ---
 
